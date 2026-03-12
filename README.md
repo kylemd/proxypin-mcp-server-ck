@@ -1,255 +1,174 @@
-# ProxyPin MCP Server - 传康KK 优化增强版
+# ProxyPin MCP Server (Enhanced)
 
-![Version](https://img.shields.io/badge/version-2.0.0--chuankangkk-blue)
-![Python](https://img.shields.io/badge/python-3.8+-green)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Python](https://img.shields.io/badge/python-3.10+-green)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
-![Author](https://img.shields.io/badge/author-传康KK-red)
 
-> 🚀 **高性能HTTP请求捕获与分析工具** - ProxyPin MCP Server的优化增强版本
+High-performance HTTP request capture and analysis tool via MCP (Model Context Protocol). Connects to ProxyPin desktop and exposes 24 tools for LLM-driven traffic analysis.
 
-## 👨‍💻 开发者信息
+## Features
 
-**二次开发者**: 传康KK  
-**GitHub**: [1837620622](https://github.com/1837620622)  
-**微信**: 1837620622  
-**邮箱**: 2040168455@qq.com  
-**平台**: 咸鱼/B站 万能程序员
+- **Connection pooling** with automatic retry on transient failures
+- **Thread-safe operations** for concurrent request handling
+- **24 MCP tools** for searching, replaying, comparing, and rewriting HTTP traffic
+- **Code generation** in Python, JavaScript, cURL, PHP, Java, Go
+- **HAR import/export** for interoperability
+- **API endpoint extraction** for auto-generating API documentation
+- **Request comparison** with JSON diff support
 
-## ✨ 功能特性
+## Quick Start
 
-### 🔥 传康KK 增强特性
-- **高性能连接池优化** - 支持并发请求处理
-- **智能重试机制** - 自动处理网络异常
-- **线程安全操作** - 多线程环境下稳定运行
-- **详细日志记录** - 完整的操作日志追踪
-- **参数验证增强** - 严格的输入参数检查
-- **性能监控** - 实时响应时间监控
-- **异常分类处理** - 精确的错误信息提示
-- **启动横幅显示** - 美观的启动界面
+### Requirements
+- Python 3.10+
+- ProxyPin desktop running on port 17777
 
-### 🌟 核心功能
-- **HTTP请求捕获** - 实时捕获和分析HTTP请求
-- **智能请求搜索** - 支持多维度条件过滤
-- **代码生成** - 支持Python、JavaScript、cURL等多种语言
-- **请求重放** - 一键重放历史请求
-- **HAR文件操作** - 导入导出HAR格式文件
-- **请求对比分析** - 详细的请求差异对比
-- **API端点提取** - 自动识别和分组API端点
-- **实时统计** - 请求数量、响应时间等统计信息
+### Install with uv (recommended)
 
-## 🚀 快速开始
-
-### 系统要求
-- Python 3.8+
-- ProxyPin 主程序运行在17777端口
-
-### Mac版本安装使用
-
-#### 方式一：下载可执行文件
-1. 从 [Releases](https://github.com/1837620622/proxypin-mcp-server/releases) 下载对应版本
-2. 解压文件
 ```bash
-tar -xzf proxypin-mcp-server-macos-arm64.tar.gz
-```
-3. 给予执行权限
-```bash
-chmod +x proxypin-mcp-server-macos-arm64
-```
-4. 运行程序
-```bash
-./proxypin-mcp-server-macos-arm64
+git clone https://github.com/1837620622/proxypin-mcp-server-ck.git
+cd proxypin-mcp-server-ck
+uv venv .venv --python 3.11
+uv pip install -e . --python .venv/Scripts/python.exe  # Windows
+# or: uv pip install -e . --python .venv/bin/python     # macOS/Linux
 ```
 
-#### 方式二：Python源码运行
-1. 克隆仓库
+### Install with pip
+
 ```bash
-git clone https://github.com/1837620622/proxypin-mcp-server.git
-cd proxypin-mcp-server
+git clone https://github.com/1837620622/proxypin-mcp-server-ck.git
+cd proxypin-mcp-server-ck
+pip install -e .
 ```
-2. 安装依赖
-```bash
-pip install -r requirements.txt
-```
-3. 运行服务
+
+### Run directly
+
 ```bash
 python proxypin_mcp_server.py
 ```
 
-### Windows版本安装使用
+## Configuration
 
-#### 方式一：下载可执行文件
-1. 从 [Releases](https://github.com/1837620622/proxypin-mcp-server/releases) 下载Windows版本
-2. 解压zip文件
-3. 双击运行 `proxypin-mcp-server-windows-x64.exe`
+### Environment Variables
 
-#### 方式二：Python源码运行
-1. 确保已安装Python 3.8+
-2. 下载项目代码
-3. 安装依赖：`pip install -r requirements.txt`
-4. 运行：`python proxypin_mcp_server.py`
-
-## 🔧 配置说明
-
-### 环境变量
 ```bash
-# ProxyPin服务地址配置
-export PROXYPIN_HOST=127.0.0.1    # 默认本机
-export PROXYPIN_PORT=17777         # 默认端口
+export PROXYPIN_HOST=127.0.0.1   # Default: localhost
+export PROXYPIN_PORT=17777        # Default: 17777
 ```
 
-### 配置文件
-程序会自动生成日志文件 `proxypin_mcp.log`，包含详细的运行日志。
+### Claude Code MCP Config
 
-## 📚 API文档
+Add to `~/.claude.json` under `"mcpServers"`:
 
-### 工具函数列表
+```json
+{
+  "proxypin": {
+    "type": "stdio",
+    "command": "/path/to/.venv/Scripts/python.exe",
+    "args": ["/path/to/proxypin_mcp_server.py"],
+    "env": {
+      "PROXYPIN_HOST": "127.0.0.1",
+      "PROXYPIN_PORT": "17777"
+    }
+  }
+}
+```
 
-#### 🔍 搜索相关
-- `search_requests()` - 高级HTTP请求搜索
-- `get_request_details()` - 获取请求详细信息
-- `find_similar_requests()` - 查找相似请求
+### Codex CLI Config
 
-#### 🎯 操作相关
-- `replay_request()` - 重放指定请求
-- `generate_code()` - 生成多语言代码
-- `get_curl()` - 生成cURL命令
+Add to `~/.codex/config.toml`:
 
-#### 📊 分析相关
-- `get_statistics()` - 获取统计信息
-- `compare_requests()` - 请求对比分析
-- `extract_api_endpoints()` - API端点提取
+```toml
+[mcp_servers.proxypin]
+command = '/path/to/.venv/Scripts/python.exe'
+args = ['/path/to/proxypin_mcp_server.py']
 
-#### 🛠️ 配置相关
-- `start_proxy()` - 启动代理服务
-- `stop_proxy()` - 停止代理服务
-- `set_config()` - 配置代理设置
-- `get_system_info()` - 获取系统信息（传康KK专属）
+[mcp_servers.proxypin.env]
+PROXYPIN_HOST = "127.0.0.1"
+PROXYPIN_PORT = "17777"
+```
 
-## 💻 使用示例
+## Tools Reference
 
-### 基础搜索
+### Search & Inspect
+| Tool | Description |
+|------|-------------|
+| `search_requests` | Search captured HTTP requests with advanced filtering |
+| `get_request_details` | Get full details of a captured request |
+| `find_similar_requests` | Find requests with same domain, path, method |
+| `get_recent_requests` | Get recent requests (legacy, use search_requests) |
+
+### Actions
+| Tool | Description |
+|------|-------------|
+| `replay_request` | Replay a captured request |
+| `generate_code` | Generate code (Python/JS/cURL/PHP/Java/Go) |
+| `get_curl` | Generate cURL command |
+| `clear_requests` | Clear all captured requests |
+
+### Analysis
+| Tool | Description |
+|------|-------------|
+| `get_statistics` | Get request statistics |
+| `compare_requests` | Compare two requests (diff) |
+| `extract_api_endpoints` | Extract and group API endpoints |
+
+### Rewriting
+| Tool | Description |
+|------|-------------|
+| `add_response_rewrite` | Add response rewrite rule |
+| `add_request_rewrite` | Add request rewrite rule |
+| `block_url` | Block a URL pattern |
+| `update_script` | Create/update a JavaScript script |
+| `get_scripts` | List all scripts |
+
+### Configuration
+| Tool | Description |
+|------|-------------|
+| `start_proxy` | Start proxy server |
+| `stop_proxy` | Stop proxy server |
+| `set_config` | Set ProxyPin configuration |
+| `add_host_mapping` | Add DNS host mapping |
+| `get_proxy_status` | Get proxy status |
+| `export_har` | Export requests as HAR |
+| `import_har` | Import HAR file |
+| `get_system_info` | Get server version and capabilities |
+
+## Usage Examples
+
 ```python
-# 搜索包含特定关键词的请求
-search_requests(query="api/user", limit=10)
+# Search by domain
+search_requests(domain="example.com", limit=10)
 
-# 按HTTP方法过滤
+# Search by method and status
 search_requests(method="POST", status_code="200")
 
-# 按域名搜索
-search_requests(domain="example.com")
-```
-
-### 代码生成
-```python
-# 生成Python代码
+# Generate Python code from a request
 generate_code(request_id="12345", language="python")
 
-# 生成cURL命令
-get_curl(request_id="12345")
-```
-
-### 请求分析
-```python
-# 获取统计信息
-get_statistics()
-
-# 对比两个请求
+# Compare two requests
 compare_requests(request_id_1="123", request_id_2="456")
+
+# Extract all API endpoints for a domain
+extract_api_endpoints(domain_filter="api.example.com")
 ```
 
-## 🎨 界面预览
+## Troubleshooting
 
-启动时显示传康KK专属横幅：
-```
-╔══════════════════════════════════════════════════════════════════════╗
-║                    ProxyPin MCP Server 传康KK 增强版                    ║
-║                                                                      ║
-║  版本: 2.0.0-chuankangkk     作者: 传康KK (GitHub)                    ║
-║  微信: 1837620622              邮箱: 2040168455@qq.com        ║
-║  平台: 咸鱼/B站 万能程序员      GitHub: 1837620622             ║
-║                                                                      ║
-║  功能特性:                                                           ║
-║  • 高性能HTTP请求捕获与分析    • 智能请求过滤与搜索               ║
-║  • 代码生成与重放功能          • HAR文件导入导出                 ║
-║  • 请求对比分析               • API端点智能提取                 ║
-║  • 增强错误处理与日志记录      • 连接池优化                     ║
-║  • 线程安全操作               • 异步处理支持                   ║
-║                                                                      ║
-║  启动中...                                                          ║
-╚══════════════════════════════════════════════════════════════════════╝
-```
+**Cannot connect to ProxyPin:**
+1. Ensure ProxyPin desktop is running
+2. Check port 17777 is listening: `curl http://127.0.0.1:17777/sse`
+3. Check firewall rules
 
-## 🚨 常见问题
-
-### Q: macOS提示"无法验证开发者"
-A: 在系统偏好设置 → 安全性与隐私 → 通用中，选择"允许从任何来源下载的应用"，或使用命令：
-```bash
-sudo spctl --master-disable
-```
-
-### Q: 连接ProxyPin失败
-A: 请确保：
-1. ProxyPin主程序正在运行
-2. 监听端口为17777
-3. 防火墙未阻止连接
-
-### Q: Python依赖安装失败
-A: 尝试使用以下命令：
+**Import errors:**
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt --force-reinstall
 ```
 
-## 🔄 更新日志
+## License
 
-### v2.0.0-chuankangkk (2024-12)
-- 🎉 **传康KK 优化增强版发布**
-- ✨ 添加连接池优化和智能重试机制
-- 🚀 实现线程安全操作
-- 📊 增加详细的性能监控和日志记录
-- 🛡️ 加强参数验证和异常处理
-- 🎨 添加启动横幅和系统信息功能
-- 📱 支持多平台自动构建发布
+MIT - see [LICENSE](LICENSE)
 
-### v1.0.0 (原版)
-- 基础MCP工具功能
-- HTTP请求捕获
-- 简单搜索功能
+## Credits
 
-## 🤝 贡献指南
-
-1. Fork本仓库
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建Pull Request
-
-## 📄 开源协议
-
-本项目基于 MIT 协议开源 - 详见 [LICENSE](LICENSE) 文件
-
-## 💬 联系方式
-
-- **作者**: 传康KK
-- **GitHub**: [1837620622](https://github.com/1837620622)
-- **微信**: 1837620622
-- **邮箱**: 2040168455@qq.com
-- **咸鱼**: 万能程序员
-- **B站**: 万能程序员
-
-## ⭐ 支持项目
-
-如果这个项目对你有帮助，请给个Star⭐支持一下！
-
----
-
-<div align="center">
-
-**ProxyPin MCP Server 传康KK 优化增强版**
-
-*让HTTP请求分析更简单、更高效*
-
-[![GitHub stars](https://img.shields.io/github/stars/1837620622/proxypin-mcp-server.svg?style=social&label=Star)](https://github.com/1837620622/proxypin-mcp-server/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/1837620622/proxypin-mcp-server.svg?style=social&label=Fork)](https://github.com/1837620622/proxypin-mcp-server/network/members)
-
-</div>
+Original: ProxyPin Team | Enhanced by: [ChuanKangKK](https://github.com/1837620622)
