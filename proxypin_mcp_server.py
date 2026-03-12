@@ -28,6 +28,7 @@ import time
 import threading
 from datetime import datetime
 from typing import Dict, Any, Optional, List, Union
+import ipaddress
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -101,7 +102,6 @@ def create_optimized_session() -> requests.Session:
     session.headers.update({
         'User-Agent': f'ProxyPin-MCP-Server/{__version__}',
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
         'Connection': 'keep-alive' if KEEP_ALIVE else 'close'
     })
 
@@ -483,9 +483,9 @@ def add_host_mapping(domain: str, ip: str):
     if not ip or not ip.strip():
         raise ValueError("IP address must not be empty")
 
-    import re
-    ip_pattern = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
-    if not re.match(ip_pattern, ip.strip()):
+    try:
+        ipaddress.ip_address(ip.strip())
+    except ValueError:
         raise ValueError("Invalid IP address format")
 
     return call_proxypin_tool("add_host_mapping", {
@@ -661,15 +661,17 @@ def get_system_info():
 
 def main():
     """Main entry point."""
+    ver_line = f"  Version: {__version__:<20} Port: {PROXYPIN_PORT}"
+    feat_line = "  Features: Connection pooling, retry logic, thread safety"
     print(f"""
-╔══════════════════════════════════════════════════════════════╗
-║              ProxyPin MCP Server (Enhanced)                  ║
-║                                                              ║
-║  Version: {__version__:<20} Port: {PROXYPIN_PORT}              ║
-║  Features: Connection pooling, retry logic, thread safety    ║
-║                                                              ║
-║  Starting...                                                 ║
-╚══════════════════════════════════════════════════════════════╝
+╔{'═'*62}╗
+║{'ProxyPin MCP Server (Enhanced)':^62}║
+║{' '*62}║
+║{ver_line:<62}║
+║{feat_line:<62}║
+║{' '*62}║
+║{'Starting...':^62}║
+╚{'═'*62}╝
     """)
 
     try:

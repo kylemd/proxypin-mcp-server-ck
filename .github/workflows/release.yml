@@ -1,5 +1,5 @@
 name: Build and Release
-# ProxyPin MCP Server 传康KK 增强版 - 自动构建发布流程
+# ProxyPin MCP Server ChuanKangKK Enhanced Edition - Automated Build & Release Pipeline
 
 on:
   push:
@@ -18,39 +18,39 @@ jobs:
     strategy:
       matrix:
         arch: [x64, x86]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         architecture: ${{ matrix.arch }}
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pyinstaller
-        
+
     - name: Build executable
       run: |
         pyinstaller --onefile --name proxypin-mcp-server-windows-${{ matrix.arch }} proxypin_mcp_server.py
-        
+
     - name: Create release info
       run: |
-        echo "ProxyPin MCP Server 传康KK 优化增强版" > dist/README.txt
-        echo "作者: 传康KK (GitHub: 1837620622)" >> dist/README.txt
-        echo "微信: 1837620622" >> dist/README.txt
-        echo "邮箱: 2040168455@qq.com" >> dist/README.txt
-        echo "平台: 咸鱼/B站 万能程序员" >> dist/README.txt
+        echo "ProxyPin MCP Server ChuanKangKK Enhanced Edition" > dist/README.txt
+        echo "Author: ChuanKangKK (GitHub: 1837620622)" >> dist/README.txt
+        echo "WeChat: 1837620622" >> dist/README.txt
+        echo "Email: 2040168455@qq.com" >> dist/README.txt
+        echo "Platforms: Xianyu / Bilibili - Universal Programmer" >> dist/README.txt
         echo "" >> dist/README.txt
-        echo "使用方法:" >> dist/README.txt
-        echo "1. 确保ProxyPin服务运行在17777端口" >> dist/README.txt
-        echo "2. 运行: proxypin-mcp-server-windows-${{ matrix.arch }}.exe" >> dist/README.txt
-        
+        echo "Usage:" >> dist/README.txt
+        echo "1. Ensure the ProxyPin service is running on port 17777" >> dist/README.txt
+        echo "2. Run: proxypin-mcp-server-windows-${{ matrix.arch }}.exe" >> dist/README.txt
+
     - name: Upload Windows artifact
       uses: actions/upload-artifact@v4
       with:
@@ -68,46 +68,46 @@ jobs:
             target_arch: arm64
           - arch: x64
             target_arch: x86_64
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pyinstaller
-        
+
     - name: Build executable
       run: |
-        # 简化构建过程，只使用原生架构避免交叉编译问题
+        # Simplified build process: use native architecture only to avoid cross-compilation issues
         pyinstaller --onefile --name proxypin-mcp-server-macos-${{ matrix.arch }} proxypin_mcp_server.py
-        
+
     - name: Create release info
       run: |
         cat > dist/README.txt << 'EOF'
-        ProxyPin MCP Server 传康KK 优化增强版
-        作者: 传康KK (GitHub: 1837620622)
-        微信: 1837620622
-        邮箱: 2040168455@qq.com
-        平台: 咸鱼/B站 万能程序员
-        
-        使用方法:
-        1. 确保ProxyPin服务运行在17777端口
-        2. 给予执行权限: chmod +x proxypin-mcp-server-macos-${{ matrix.arch }}
-        3. 运行: ./proxypin-mcp-server-macos-${{ matrix.arch }}
-        
-        注意事项:
-        - macOS可能会提示"无法验证开发者"，请在系统偏好设置中允许
-        - 如遇权限问题，请使用: sudo spctl --master-disable
+        ProxyPin MCP Server ChuanKangKK Enhanced Edition
+        Author: ChuanKangKK (GitHub: 1837620622)
+        WeChat: 1837620622
+        Email: 2040168455@qq.com
+        Platforms: Xianyu / Bilibili - Universal Programmer
+
+        Usage:
+        1. Ensure the ProxyPin service is running on port 17777
+        2. Grant execute permission: chmod +x proxypin-mcp-server-macos-${{ matrix.arch }}
+        3. Run: ./proxypin-mcp-server-macos-${{ matrix.arch }}
+
+        Notes:
+        - macOS may warn "unable to verify the developer"; allow it in System Preferences
+        - If you encounter permission issues, run: sudo spctl --master-disable
         EOF
-        
+
     - name: Upload macOS artifact
       uses: actions/upload-artifact@v4
       with:
@@ -120,108 +120,108 @@ jobs:
     needs: [build-windows, build-macos]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Download all artifacts
       uses: actions/download-artifact@v4
-      
+
     - name: Create release archives
       run: |
         mkdir -p releases
-        
+
         # Windows releases
         for arch in x64 x86; do
           cd "proxypin-mcp-server-windows-${arch}"
           zip -r "../releases/proxypin-mcp-server-windows-${arch}.zip" .
           cd ..
         done
-        
-        # macOS releases  
+
+        # macOS releases
         for arch in x64 arm64; do
           cd "proxypin-mcp-server-macos-${arch}"
           tar -czf "../releases/proxypin-mcp-server-macos-${arch}.tar.gz" .
           cd ..
         done
-        
+
     - name: Generate release notes
       run: |
         cat > release_notes.md << 'EOF'
-        # ProxyPin MCP Server 传康KK 优化增强版
-        
-        ## 🚀 新特性
-        - 高性能HTTP请求捕获与分析
-        - 智能请求过滤与搜索功能
-        - 多语言代码生成支持
-        - HAR文件导入导出
-        - 请求对比分析
-        - API端点智能提取
-        - 增强的错误处理与日志记录
-        - 连接池优化
-        - 线程安全操作
-        
-        ## 👨‍💻 开发者信息
-        - **作者**: 传康KK (GitHub)
-        - **微信**: 1837620622
-        - **邮箱**: 2040168455@qq.com
-        - **平台**: 咸鱼/B站 万能程序员
+        # ProxyPin MCP Server ChuanKangKK Enhanced Edition
+
+        ## New Features
+        - High-performance HTTP request capture and analysis
+        - Smart request filtering and search
+        - Multi-language code generation support
+        - HAR file import/export
+        - Request comparison and diff
+        - API endpoint smart extraction
+        - Enhanced error handling and logging
+        - Connection pooling
+        - Thread-safe operations
+
+        ## Developer Information
+        - **Author**: ChuanKangKK (GitHub)
+        - **WeChat**: 1837620622
+        - **Email**: 2040168455@qq.com
+        - **Platforms**: Xianyu / Bilibili - Universal Programmer
         - **GitHub**: https://github.com/1837620622
-        
-        ## 📥 下载说明
-        
-        ### Windows 版本
-        - `proxypin-mcp-server-windows-x64.zip` - 64位系统
-        - `proxypin-mcp-server-windows-x86.zip` - 32位系统
-        
-        ### macOS 版本
-        - `proxypin-mcp-server-macos-x64.tar.gz` - Intel芯片
-        - `proxypin-mcp-server-macos-arm64.tar.gz` - Apple M系列芯片
-        
-        ## 🔧 使用方法
-        
-        1. 确保ProxyPin服务运行在17777端口
-        2. 下载对应平台的版本
-        3. 解压并运行可执行文件
-        
+
+        ## Download Instructions
+
+        ### Windows
+        - `proxypin-mcp-server-windows-x64.zip` - 64-bit systems
+        - `proxypin-mcp-server-windows-x86.zip` - 32-bit systems
+
+        ### macOS
+        - `proxypin-mcp-server-macos-x64.tar.gz` - Intel chips
+        - `proxypin-mcp-server-macos-arm64.tar.gz` - Apple M-series chips
+
+        ## Usage
+
+        1. Ensure the ProxyPin service is running on port 17777
+        2. Download the version for your platform
+        3. Extract and run the executable
+
         ### Windows
         ```bash
-        # 解压后直接运行
+        # Run the extracted executable directly
         proxypin-mcp-server-windows-x64.exe
         ```
-        
+
         ### macOS
         ```bash
-        # 解压
+        # Extract
         tar -xzf proxypin-mcp-server-macos-arm64.tar.gz
-        
-        # 给予执行权限
+
+        # Grant execute permission
         chmod +x proxypin-mcp-server-macos-arm64
-        
-        # 运行
+
+        # Run
         ./proxypin-mcp-server-macos-arm64
         ```
-        
-        ## ⚠️ 注意事项
-        
-        - macOS可能会提示"无法验证开发者"，请在系统偏好设置中允许
-        - 确保ProxyPin主程序已启动并监听17777端口
-        - 如遇到问题，请查看生成的日志文件 `proxypin_mcp.log`
-        
-        ## 🐛 问题反馈
-        
-        如遇到任何问题，请通过以下方式联系：
+
+        ## Notes
+
+        - macOS may warn "unable to verify the developer"; allow it in System Preferences
+        - Ensure the ProxyPin application is running and listening on port 17777
+        - If you encounter issues, check the generated log file `proxypin_mcp.log`
+
+        ## Bug Reports
+
+        If you encounter any issues, please reach out via:
         - GitHub Issues: https://github.com/1837620622/proxypin-mcp-server/issues
-        - 微信: 1837620622
-        - 邮箱: 2040168455@qq.com
+        - WeChat: 1837620622
+        - Email: 2040168455@qq.com
         EOF
-        
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}
-        name: ProxyPin MCP Server ${{ github.ref_name }} - 传康KK 优化版
+        name: ProxyPin MCP Server ${{ github.ref_name }} - ChuanKangKK Enhanced
         body_path: release_notes.md
         files: |
           releases/*.zip
@@ -233,25 +233,25 @@ jobs:
 
   build-python-package:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-        
+
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build twine
-        
+
     - name: Build Python package
       run: |
         python -m build
-        
+
     - name: Upload Python package artifact
       uses: actions/upload-artifact@v4
       with:
